@@ -67,11 +67,11 @@ const ProductSchema = new Schema<IProduct>({
   code: { type: String, required: true, unique: true, index: true, trim: true },
   description: { type: String, default: "" },
   category: {
-    code: { type: String, enum: Object.values(CategoryEnum), required: true, index: true, unique: true },
+    code: { type: String, enum: Object.values(CategoryEnum), required: true, index: true },
     displayName: { type: String, required: true }
   },
   metalType: {
-    code: { type: String, enum: Object.values(MetalTypeEnum), required: true, index: true, unique: true },
+    code: { type: String, enum: Object.values(MetalTypeEnum), required: true, index: true },
     displayName: { type: String, required: true }
   },
   gender: { type: String, index: true, trim: true },

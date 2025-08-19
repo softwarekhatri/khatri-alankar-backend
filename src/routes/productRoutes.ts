@@ -5,7 +5,6 @@ import {
   createProduct,
   updateProduct,
   deleteProductsBulk,
-  getFilters,
   listProducts
 } from "../controllers/productController";
 

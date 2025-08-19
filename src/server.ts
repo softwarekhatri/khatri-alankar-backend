@@ -28,5 +28,5 @@ if (process.env.VERCEL !== "1" && !process.env.NOW_REGION) {
   app.listen(PORT, () => console.log(`Server listening on http://localhost:${PORT}`));
 }
 
-module.exports = app;
-module.exports.handler = serverless(app);
+export default app;
+export const handler = serverless(app);

@@ -13,7 +13,7 @@ const productSchema = z.object({
   weight: z.string().optional(),
   price: z.union([z.string(), z.number()]).transform((v) => typeof v === "string" ? parseFloat(v) : v).pipe(z.number().nonnegative()),
   images: z.array(z.string().url()).default([]),
-  isNew: z.boolean().default(false),
+  isNewProduct: z.boolean().default(false),
   isOnSale: z.boolean().default(false),
   isFeatured: z.boolean().default(false),
   availableSizes: z.array(z.string()).default([])

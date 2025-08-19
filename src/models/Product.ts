@@ -11,7 +11,7 @@ export interface IProduct extends Document {
   weight?: string;
   price: number;
   images: string[];
-  isNew: boolean;
+  isNewProduct: boolean;
   isOnSale: boolean;
   isFeatured: boolean;
   availableSizes: string[];
@@ -29,7 +29,7 @@ const ProductSchema = new Schema<IProduct>({
   weight: { type: String, default: "" },
   price: { type: Number, required: true, min: 0 },
   images: { type: [String], default: [] },
-  isNew: { type: Boolean, default: false },
+  isNewProduct: { type: Boolean, default: false },
   isOnSale: { type: Boolean, default: false },
   isFeatured: { type: Boolean, default: false },
   availableSizes: { type: [String], default: [] }

@@ -142,13 +142,21 @@ export async function listProducts(req: Request, res: Response) {
       gender,
       category,
       metalType,
-      onSale
+      onSale,
+      search
     } = req.query as Record<string, string>;
 
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.max(1, Math.min(100, parseInt(limit as string, 10) || 12));
 
     const filter: any = {};
+    if (search) {
+      // If search is present, match code exactly or name partial (case-insensitive)
+      filter.$or = [
+        { code: search },
+        { name: { $regex: escapeRegex(search), $options: "i" } }
+      ];
+    }
     if (code) filter.code = new RegExp(`^${escapeRegex(code)}`, "i");
     if (name) filter.name = new RegExp(escapeRegex(name), "i");
     if (gender) filter.gender = gender;
@@ -158,28 +166,40 @@ export async function listProducts(req: Request, res: Response) {
 
     const sort: any = { [sortBy]: sortOrder?.toLowerCase() === "asc" ? 1 : -1 };
 
+    console.log("filetr obj, ", filter);
     const [items, total] = await Promise.all([
-      Product.find(filter).sort(sort).skip((pageNum - 1) * limitNum).limit(limitNum).lean(),
+      Product.find(filter)
+        .sort(sort)
+        .skip((pageNum - 1) * limitNum)
+        .limit(limitNum)
+        .select("code name description images isFeatured isOnSale isNewProduct createdAt")
+        .lean(),
       Product.countDocuments(filter)
     ]);
-
-    // Always return displayName for category and metalType in each item
-    const itemsWithDisplay = items.map((product) => {
-      if (product.category && product.category.code) {
-        product.category.displayName = CategoryDisplay[product.category.code as CategoryEnum];
-      }
-      if (product.metalType && product.metalType.code) {
-        product.metalType.displayName = MetalTypeDisplay[product.metalType.code as MetalTypeEnum];
-      }
-      return product;
+    console.log({
+      filter,
+      pageNum: pageNum,
+      skip: (pageNum - 1) * limitNum,
+      limit: limitNum
     });
+
+    // Return only the first image and required fields
+    const itemsOptimized = items.map((product) => ({
+      code: product.code,
+      name: product.name,
+      description: product.description,
+      images: Array.isArray(product.images) && product.images.length > 0 ? [product.images[0]] : [],
+      isFeatured: product.isFeatured,
+      isOnSale: product.isOnSale,
+      isNewProduct: product.isNewProduct
+    }));
 
     return res.json({
       page: pageNum,
       limit: limitNum,
       total,
       totalPages: Math.ceil(total / limitNum),
-      items: itemsWithDisplay
+      items: itemsOptimized
     });
   } catch (err: any) {
     return res.status(500).json({ error: "Failed to list products", details: err?.message });
